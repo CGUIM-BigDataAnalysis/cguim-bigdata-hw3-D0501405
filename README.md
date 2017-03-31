@@ -1,227 +1,219 @@
 長庚大學 大數據分析方法 作業三
 ================
 
-作業說明 （繳交時請直接刪除這個章節）
--------------------------------------
-
-作業目的：練習初級爬蟲，並將爬蟲結果整理成資料框data.frame
-
-依下列指示，完成網站內文分析：
-
--   爬取指定網站內容
-    -   學號結尾 0,4,8:[Ptt Tech\_Job 版](https://www.ptt.cc/bbs/Tech_Job/index.html)
-    -   學號結尾 1,5,9:[Ptt NBA 版](https://www.ptt.cc/bbs/NBA/index.html)
-    -   學號結尾 2,6:[Ptt LoL 版](https://www.ptt.cc/bbs/LoL/index.html)
-    -   學號結尾 3,7:[Ptt movie 版](https://www.ptt.cc/bbs/movie/index.html)
--   試著爬出**至少100篇**文章（`30pt`）的**標題**、**推文數**與**作者ID**（各`10pt`）
-    -   資料框欄位名稱：
-        -   **標題**：Title
-        -   **推文數**：PushNum
-        -   **作者ID**：Author
-    -   一頁只有20篇，該怎麼辦？
-        -   提示：使用for + rbind()將分批爬取出的資料結合
-        -   範例：dataframeAll&lt;-rbind(dataframe1,dataframe2)
-        -   參考：[6.6 資料組合](http://yijutseng.github.io/DataScienceRBook/manipulation.html#section-6.6)
--   將爬取出的資料輸出至Markdown報告中（`10pt`）
-    -   使用knitr::kable(資料框物件)整理輸出
--   用文字搭配程式碼解釋爬蟲結果
-    -   共爬出幾篇文章標題？（程式碼與文字解釋各`5pt`）
-        -   dim(), nrow(), str()皆可
-    -   哪個作者文章數最多？（程式碼與文字解釋各`5pt`）
-        -   table()
-    -   其他爬蟲結果解釋（`10pt`）
-        -   試著找出有趣的現象，不一定要用程式碼搭配解釋，也可只用文字
-
 網站資料爬取
 ------------
 
 ``` r
-#這是R Code Chunk
-library(rvest) ##第一次使用要先安裝 install.packages("rvest")
+library(rvest) ##
 ```
+
+    ## Warning: package 'rvest' was built under R version 3.2.5
 
     ## Loading required package: xml2
 
+    ## Warning: package 'xml2' was built under R version 3.2.5
+
 ``` r
-##read_html
-##html_nodes
-##html_text
+totalpage<- NULL
+for(i in 4635:1){
+    N<-paste0("https://www.ptt.cc/bbs/NBA/index",as.character(i),".html")
+    NContent<-read_html(N)
+    post_title <-NContent %>% html_nodes(".title") %>% html_text()
+    post_PushNum<- NContent %>% html_nodes(".nrec") %>% html_text()
+    post_Author<- NContent %>% html_nodes(".author") %>% html_text()
+    temp<-data.frame(title=post_title, pushnum=post_PushNum, author=post_Author)
+    totalpage<- rbind(totalpage,temp)
+if(nrow(totalpage)>100){
+    break
+}
+    }
 ```
 
 爬蟲結果呈現
 ------------
 
 ``` r
-#這是R Code Chunk
-knitr::kable(iris) ##請將iris取代為上個步驟中產生的爬蟲資料資料框
+#
+knitr::kable(totalpage) ##
 ```
 
-|  Sepal.Length|  Sepal.Width|  Petal.Length|  Petal.Width| Species    |
-|-------------:|------------:|-------------:|------------:|:-----------|
-|           5.1|          3.5|           1.4|          0.2| setosa     |
-|           4.9|          3.0|           1.4|          0.2| setosa     |
-|           4.7|          3.2|           1.3|          0.2| setosa     |
-|           4.6|          3.1|           1.5|          0.2| setosa     |
-|           5.0|          3.6|           1.4|          0.2| setosa     |
-|           5.4|          3.9|           1.7|          0.4| setosa     |
-|           4.6|          3.4|           1.4|          0.3| setosa     |
-|           5.0|          3.4|           1.5|          0.2| setosa     |
-|           4.4|          2.9|           1.4|          0.2| setosa     |
-|           4.9|          3.1|           1.5|          0.1| setosa     |
-|           5.4|          3.7|           1.5|          0.2| setosa     |
-|           4.8|          3.4|           1.6|          0.2| setosa     |
-|           4.8|          3.0|           1.4|          0.1| setosa     |
-|           4.3|          3.0|           1.1|          0.1| setosa     |
-|           5.8|          4.0|           1.2|          0.2| setosa     |
-|           5.7|          4.4|           1.5|          0.4| setosa     |
-|           5.4|          3.9|           1.3|          0.4| setosa     |
-|           5.1|          3.5|           1.4|          0.3| setosa     |
-|           5.7|          3.8|           1.7|          0.3| setosa     |
-|           5.1|          3.8|           1.5|          0.3| setosa     |
-|           5.4|          3.4|           1.7|          0.2| setosa     |
-|           5.1|          3.7|           1.5|          0.4| setosa     |
-|           4.6|          3.6|           1.0|          0.2| setosa     |
-|           5.1|          3.3|           1.7|          0.5| setosa     |
-|           4.8|          3.4|           1.9|          0.2| setosa     |
-|           5.0|          3.0|           1.6|          0.2| setosa     |
-|           5.0|          3.4|           1.6|          0.4| setosa     |
-|           5.2|          3.5|           1.5|          0.2| setosa     |
-|           5.2|          3.4|           1.4|          0.2| setosa     |
-|           4.7|          3.2|           1.6|          0.2| setosa     |
-|           4.8|          3.1|           1.6|          0.2| setosa     |
-|           5.4|          3.4|           1.5|          0.4| setosa     |
-|           5.2|          4.1|           1.5|          0.1| setosa     |
-|           5.5|          4.2|           1.4|          0.2| setosa     |
-|           4.9|          3.1|           1.5|          0.2| setosa     |
-|           5.0|          3.2|           1.2|          0.2| setosa     |
-|           5.5|          3.5|           1.3|          0.2| setosa     |
-|           4.9|          3.6|           1.4|          0.1| setosa     |
-|           4.4|          3.0|           1.3|          0.2| setosa     |
-|           5.1|          3.4|           1.5|          0.2| setosa     |
-|           5.0|          3.5|           1.3|          0.3| setosa     |
-|           4.5|          2.3|           1.3|          0.3| setosa     |
-|           4.4|          3.2|           1.3|          0.2| setosa     |
-|           5.0|          3.5|           1.6|          0.6| setosa     |
-|           5.1|          3.8|           1.9|          0.4| setosa     |
-|           4.8|          3.0|           1.4|          0.3| setosa     |
-|           5.1|          3.8|           1.6|          0.2| setosa     |
-|           4.6|          3.2|           1.4|          0.2| setosa     |
-|           5.3|          3.7|           1.5|          0.2| setosa     |
-|           5.0|          3.3|           1.4|          0.2| setosa     |
-|           7.0|          3.2|           4.7|          1.4| versicolor |
-|           6.4|          3.2|           4.5|          1.5| versicolor |
-|           6.9|          3.1|           4.9|          1.5| versicolor |
-|           5.5|          2.3|           4.0|          1.3| versicolor |
-|           6.5|          2.8|           4.6|          1.5| versicolor |
-|           5.7|          2.8|           4.5|          1.3| versicolor |
-|           6.3|          3.3|           4.7|          1.6| versicolor |
-|           4.9|          2.4|           3.3|          1.0| versicolor |
-|           6.6|          2.9|           4.6|          1.3| versicolor |
-|           5.2|          2.7|           3.9|          1.4| versicolor |
-|           5.0|          2.0|           3.5|          1.0| versicolor |
-|           5.9|          3.0|           4.2|          1.5| versicolor |
-|           6.0|          2.2|           4.0|          1.0| versicolor |
-|           6.1|          2.9|           4.7|          1.4| versicolor |
-|           5.6|          2.9|           3.6|          1.3| versicolor |
-|           6.7|          3.1|           4.4|          1.4| versicolor |
-|           5.6|          3.0|           4.5|          1.5| versicolor |
-|           5.8|          2.7|           4.1|          1.0| versicolor |
-|           6.2|          2.2|           4.5|          1.5| versicolor |
-|           5.6|          2.5|           3.9|          1.1| versicolor |
-|           5.9|          3.2|           4.8|          1.8| versicolor |
-|           6.1|          2.8|           4.0|          1.3| versicolor |
-|           6.3|          2.5|           4.9|          1.5| versicolor |
-|           6.1|          2.8|           4.7|          1.2| versicolor |
-|           6.4|          2.9|           4.3|          1.3| versicolor |
-|           6.6|          3.0|           4.4|          1.4| versicolor |
-|           6.8|          2.8|           4.8|          1.4| versicolor |
-|           6.7|          3.0|           5.0|          1.7| versicolor |
-|           6.0|          2.9|           4.5|          1.5| versicolor |
-|           5.7|          2.6|           3.5|          1.0| versicolor |
-|           5.5|          2.4|           3.8|          1.1| versicolor |
-|           5.5|          2.4|           3.7|          1.0| versicolor |
-|           5.8|          2.7|           3.9|          1.2| versicolor |
-|           6.0|          2.7|           5.1|          1.6| versicolor |
-|           5.4|          3.0|           4.5|          1.5| versicolor |
-|           6.0|          3.4|           4.5|          1.6| versicolor |
-|           6.7|          3.1|           4.7|          1.5| versicolor |
-|           6.3|          2.3|           4.4|          1.3| versicolor |
-|           5.6|          3.0|           4.1|          1.3| versicolor |
-|           5.5|          2.5|           4.0|          1.3| versicolor |
-|           5.5|          2.6|           4.4|          1.2| versicolor |
-|           6.1|          3.0|           4.6|          1.4| versicolor |
-|           5.8|          2.6|           4.0|          1.2| versicolor |
-|           5.0|          2.3|           3.3|          1.0| versicolor |
-|           5.6|          2.7|           4.2|          1.3| versicolor |
-|           5.7|          3.0|           4.2|          1.2| versicolor |
-|           5.7|          2.9|           4.2|          1.3| versicolor |
-|           6.2|          2.9|           4.3|          1.3| versicolor |
-|           5.1|          2.5|           3.0|          1.1| versicolor |
-|           5.7|          2.8|           4.1|          1.3| versicolor |
-|           6.3|          3.3|           6.0|          2.5| virginica  |
-|           5.8|          2.7|           5.1|          1.9| virginica  |
-|           7.1|          3.0|           5.9|          2.1| virginica  |
-|           6.3|          2.9|           5.6|          1.8| virginica  |
-|           6.5|          3.0|           5.8|          2.2| virginica  |
-|           7.6|          3.0|           6.6|          2.1| virginica  |
-|           4.9|          2.5|           4.5|          1.7| virginica  |
-|           7.3|          2.9|           6.3|          1.8| virginica  |
-|           6.7|          2.5|           5.8|          1.8| virginica  |
-|           7.2|          3.6|           6.1|          2.5| virginica  |
-|           6.5|          3.2|           5.1|          2.0| virginica  |
-|           6.4|          2.7|           5.3|          1.9| virginica  |
-|           6.8|          3.0|           5.5|          2.1| virginica  |
-|           5.7|          2.5|           5.0|          2.0| virginica  |
-|           5.8|          2.8|           5.1|          2.4| virginica  |
-|           6.4|          3.2|           5.3|          2.3| virginica  |
-|           6.5|          3.0|           5.5|          1.8| virginica  |
-|           7.7|          3.8|           6.7|          2.2| virginica  |
-|           7.7|          2.6|           6.9|          2.3| virginica  |
-|           6.0|          2.2|           5.0|          1.5| virginica  |
-|           6.9|          3.2|           5.7|          2.3| virginica  |
-|           5.6|          2.8|           4.9|          2.0| virginica  |
-|           7.7|          2.8|           6.7|          2.0| virginica  |
-|           6.3|          2.7|           4.9|          1.8| virginica  |
-|           6.7|          3.3|           5.7|          2.1| virginica  |
-|           7.2|          3.2|           6.0|          1.8| virginica  |
-|           6.2|          2.8|           4.8|          1.8| virginica  |
-|           6.1|          3.0|           4.9|          1.8| virginica  |
-|           6.4|          2.8|           5.6|          2.1| virginica  |
-|           7.2|          3.0|           5.8|          1.6| virginica  |
-|           7.4|          2.8|           6.1|          1.9| virginica  |
-|           7.9|          3.8|           6.4|          2.0| virginica  |
-|           6.4|          2.8|           5.6|          2.2| virginica  |
-|           6.3|          2.8|           5.1|          1.5| virginica  |
-|           6.1|          2.6|           5.6|          1.4| virginica  |
-|           7.7|          3.0|           6.1|          2.3| virginica  |
-|           6.3|          3.4|           5.6|          2.4| virginica  |
-|           6.4|          3.1|           5.5|          1.8| virginica  |
-|           6.0|          3.0|           4.8|          1.8| virginica  |
-|           6.9|          3.1|           5.4|          2.1| virginica  |
-|           6.7|          3.1|           5.6|          2.4| virginica  |
-|           6.9|          3.1|           5.1|          2.3| virginica  |
-|           5.8|          2.7|           5.1|          1.9| virginica  |
-|           6.8|          3.2|           5.9|          2.3| virginica  |
-|           6.7|          3.3|           5.7|          2.5| virginica  |
-|           6.7|          3.0|           5.2|          2.3| virginica  |
-|           6.3|          2.5|           5.0|          1.9| virginica  |
-|           6.5|          3.0|           5.2|          2.0| virginica  |
-|           6.2|          3.4|           5.4|          2.3| virginica  |
-|           5.9|          3.0|           5.1|          1.8| virginica  |
+| title                                               | pushnum | author       |
+|:----------------------------------------------------|:--------|:-------------|
+| Re: \[討論\] 勇士防守怎麼那麼猛??                   | 9       | CYPer        |
+| \[新聞\] 球迷怨輪休 杜蘭特：沒錢看球的更可憐        | X3      | zzyyxx77     |
+| \[新聞\] 勇士迷快看　杜蘭特歸隊時間有譜了           | 30      | JAL96        |
+| \[Live\] 籃網 @ 活塞                                | 爆      | Rambo        |
+| \[討論\] nba季後賽程表                              | 16      | leyi12       |
+| \[Live\] 騎士 @ 公牛                                | 爆      | Rambo        |
+| \[Live\] 湖人 @ 灰狼                                | 36      | Rambo        |
+| Re: \[討論\] nba季後賽程表                          | 10      | Aretimis7345 |
+| \[Live\] 快艇 @ 太陽                                | 6       | Rambo        |
+| \[討論\] 林書豪是甲還是甲上呢                       | X3      | goal56       |
+| \[BOX \] Nets 89:90 Pistons 數據                    | 57      | Rambo        |
+| \[花邊\] James模仿Lonzo Ball的投籃姿勢              | 7       | ericl1234567 |
+| \[Live\] 火箭 @ 拓荒者                              | 爆      | Rambo        |
+| \[情報\] LBJ例行賽生涯得分升至歷史第七(超越Shaq)    | 53      | MrSatan      |
+| \[BOX \] Lakers 104:119 Timberwolves 數據           | 爆      | Rambo        |
+| \[BOX \] Cavaliers 93:99 Bulls 數據                 | 99      | Rambo        |
+| \[情報\] 騎士教練Lue：今晚是一個重回正軌的好機會    | 74      | PaulDavis    |
+| \[討論\] 勒布朗到底強在哪裡？                       | 67      | phantomboy   |
+| \[討論\] 有人跟我一樣比較喜歡以前的LBJ嗎 ?          | 99      | a125567365   |
+| \[閒聊\] 公牛TNT直播時主場20連勝                    | 12      | dragon803    |
+| Re: \[討論\] NBA Store廣告意涵                      | 4       | iammatrix    |
+| Re: \[討論\] 該怎麼阻止勇士一波流的打法?            | 5       | stocktonty   |
+| \[新聞\] NBA》傳奇中鋒排名 歐尼爾認為自己只排       | 爆      | lovea        |
+| \[花邊\] 勇馬大戰票價創聖安東尼奧近十年第四高       | 11      | Yui5         |
+| \[新聞\] NBA》自己的紀錄自己刷 柯瑞單季289三分      | 57      | thanksyou    |
+| 如果籃球改成這樣                                    | X1      | riddickwu    |
+| \[情報\] ★今日排名(2017.03.30)★                     | 4       | Rambo        |
+| \[新聞\] 衛少57分大三元 魔術主場倒戈高喊MVP！       | 7       | iam168888888 |
+| Re: \[討論\] NBA Store廣告意涵                      | 1       | google60411  |
+| \[討論\] 這波勇士九連勝的一些數據                   | 57      | juchii       |
+| \[討論\] 為什麼林書豪不交女朋友                     |         | SongLa5566   |
+| Re: \[新聞\] NBA》傳奇中鋒排名 歐尼爾認為自己只排   |         | tobyhuang    |
+| \[討論\] 若布拉加入騎士是不是就是完全體了?          | 10      | randy225     |
+| \[討論\] 今年DPOY                                   | 爆      | sean4712     |
+| \[討論\] 17梯前10新秀，高光影片整理                 | 爆      | rabbit529    |
+| Re: \[討論\] 近代哪個球員最過譽了                   |         | km10635237   |
+| \[討論\] Duncan與Popovich                           | X3      | Feiwer       |
+| Re: \[討論\] 若布拉加入騎士是不是就是完全體了?      |         | LeeChi5566   |
+| Re: \[討論\] 為什麼林書豪不交女朋友                 | 15      | sasolala     |
+| \[討論\] 體能怪物 Zion Williamson                   | 51      | checktime    |
+| Re: \[討論\] 該怎麼阻止勇士一波流的打法?            |         | overkill0802 |
+| \[心得\] 龜龜精彩的一季 進階數據真漂亮              | 47      | checktime    |
+| \[新聞\] 尼克連四年無季後賽　安東尼:真的很難受      | 28      | jhemezuo     |
+| \[討論\] 沒有被黑的球星都具備什麼特質               | 爆      | waiting0212  |
+| \[新聞\] 主場被灰狼逆轉 喬治怒批隊友態度            | 15      | adam7148     |
+| \[花邊\] 馬里安支持衛少MVP 看好西區球隊奪冠         | 40      | adam7148     |
+| \[新聞\] 不滿遭撞倒還被吹犯規 小牛球員火大嗆        | 10      | zzzz8931     |
+| Re: \[討論\] 該怎麼阻止勇士一波流的打法?            | 23      | djviva       |
+| \[討論\] 該怎麼評價Steve Kerr這位教練               | 52      | ericl1234567 |
+| \[新聞\] 浪花兄弟合飆52分　勇士本季首勝馬刺         | 16      | JAL96        |
+| \[討論\] 今晚我該骰死誰？                           | 4       | Copycat3     |
+| \[討論\] 勇士防守怎麼那麼猛??                       | 61      | dxc669       |
+| \[討論\] 勇士的大腿真的是KD嗎?                      |         | rrr111222    |
+| \[討論\] Kyrie Irving是不是過譽了                   | 98      | KyrieIrving1 |
+| \[新聞\] 已能與助教鬥牛 杜蘭特例行賽前可望歸隊      | 14      | iso2288      |
+| Re: \[新聞\] 魏少拿大三元打贏爵士 聯盟剩4隊還沒被他 | 9       | checktime    |
+| \[討論\] NBA Store廣告意涵                          | 11      | eric7943     |
+| \[討論\] KD回歸後 比賽落後時的打法                  | 6       | omare        |
+| \[討論\] Mcgee這個球員                              | 62      | yokann       |
+| \[新聞\] 騎士近況低迷 厄文：我得承擔責任            | 67      | gt097231     |
+| \[討論\] 有人也希望馬刺再一冠嗎?                    | X1      | elgoogle     |
+| \[外絮\] 詹姆斯認為卡達珊詛咒了球隊                 | X1      | kyle5241     |
+| (本文已被刪除) \[carmeloeat\]                       |         | -            |
+| \[討論\] 該怎麼阻止勇士一波流的打法?                | 57      | crowley      |
+| \[討論\] K.Leonard的運球                            | 5       | cksxxb123    |
+| \[討論\] AD為什麼討論度那麼低 ?                     | 26      | erikaptt     |
+| Re: \[討論\] 馬刺可以打到西冠嗎？                   | 5       | rainfruit    |
+| \[情報\] VC生涯總得分超越Ray Allen                  | 59      | Wall62       |
+| \[BOX \] Jazz 112:82 Kings 數據                     | 6       | Rambo        |
+| \[討論\] 東西區季後賽抽籤如何？                     | 12      | mystage      |
+| Re: \[情報\] “刺客”Thomas：快艇的奪冠之門已經關     |         | PegasusSeiya |
+| Re: \[討論\] 該怎麼阻止勇士一波流的打法?            | 4       | rainfruit    |
+| \[討論\] KD和LBJ互換，哪隊比較強                    | 32      | sandiato     |
+| \[情報\] Curry本季命中289記三分，史上第二           | 爆      | iefw         |
+| \[新聞\] 浪花兄弟合飆52分 勇士逆轉馬刺保龍頭        | 23      | jay0601zzz   |
+| \[公告\] NBA 樂透開獎                               | 1       | \[彩券\]     |
+| \[情報\] NBA Standings(2017.03.30)                  | 42      | kadasaki     |
+| \[BOX \] Wizards 124:133 Clippers 數據              | 46      | hungys       |
+| \[情報\] David West談被馬刺球迷噓：這就是NBA        | 99      | Turtle100    |
+| \[討論\] 第一輪若雷霆V.S.火箭 會影響MVP選情嗎?      | 63      | FAYeeeeeeee  |
+| \[BOX \] Thunder 114:106 Magic 數據                 | 爆      | Rambo        |
+| \[情報\] 龜龜大三元場次一覽表                       | 49      | checktime    |
+| \[討論\] 勇刺之戰之勝負我見                         | X4      | CurryMvp     |
+| \[BOX \] Hornets 110:106 Raptors 數據               | 14      | Rambo        |
+| \[BOX \] Heat 105:88 Knicks 數據                    | 33      | Rambo        |
+| \[BOX \] Bucks 103:100 Celtics 數據                 | 46      | Rambo        |
+| \[Live\] 巫師 @ 快艇                                | 15      | Rambo        |
+| \[Live\] 爵士 @ 國王                                | 2       | Rambo        |
+| \[情報\] Westbrook 創下史上最高得分大三元           | 爆      | thnlkj0665   |
+| \[新聞\] I.湯瑪斯飆32分沒用 塞爾提克又把東部第      | 35      | pneumo       |
+| \[討論\] 過場音樂                                   | 4       | a167182100   |
+| \[BOX \] Pacers 97:110 Grizzlies 數據               | 48      | hungys       |
+| R：\[專欄\] 塞爾蒂克再升級 東區天平正在改變LYS      | X2      | andy80419    |
+| \[BOX \] Mavericks 118:121 Pelicans 數據            | 54      | hungys       |
+| \[討論\]溜馬 pg. vs 尼克melo                        | 33      | kiske011     |
+| \[討論\] 1961-62 該季MVP投票情況                    | 29      | checktime    |
+| \[討論\] 有發生過主將受傷卻意外排毒成功嗎？         | 62      | Silmeria     |
+| \[BOX \] Warriors 110:98 Spurs 數據                 | 爆      | Rambo        |
+| \[討論\] KD對於勇士重要性                           | 80      | kentisking   |
+| \[討論\] 馬刺可以打到西冠嗎？                       | 56      | lopopo001    |
+| \[討論\] 有一種拋投叫？（東尼拋克獲勝！）           | 爆      | gn00167236   |
+| \[情報\] Rookie Ladder Week 21                      | 17      | Vedan1213    |
+| \[情報\] 溜馬嘗試簽回Lance Stephenson               | 17      | dragon803    |
+| \[情報\] 溜馬與Stephenson簽下三年1200萬合約         | 51      | k960674      |
+| \[情報\] 前籃網新秀有興趣歸化菲律賓                 | 30      | pipi8963     |
+| \[Live\] 老鷹 @ 七六人                              | 4       | Rambo        |
+| \[Live\] 雷霆 @ 魔術                                | 爆      | Rambo        |
+| \[Live\] 公鹿 @ 超賽                                | 14      | Rambo        |
+| \[Live\] 黃蜂 @ 暴龍                                | 4       | Rambo        |
+| \[Live\] 熱火 @ 尼克                                | 5       | Rambo        |
+| \[Live\] 溜馬 @ 灰熊                                | 7       | Rambo        |
+| \[Live\] 小牛 @ 鵜鶘                                | 14      | Rambo        |
+| \[討論\] Curry+CP3                                  |         | harry1234585 |
+| \[專欄\] 塞爾蒂克再升級 東區天平正在改變LYS         | X8      | zzyyxx77     |
+| Re: \[專欄\] 塞爾蒂克再升級 東區天平正在改變LYS     | 70      | st900278     |
+| \[Live\] 勇士 @ 馬刺                                | 爆      | Rambo        |
+| (本文已被刪除) \[feyako\]                           | 16      | -            |
+| \[情報\] KD復原情況良好                             | 25      | sthho        |
+| \[討論\] 07馬刺打騎士，是實力差距最大的總冠嗎       | 爆      | s106667      |
+| \[BOX \] Hawks 99:92 Sixers 數據                    | 19      | Rambo        |
 
 解釋爬蟲結果
 ------------
 
 ``` r
-#這是R Code Chunk
+#
+nrow(totalpage)
 ```
 
-解釋解釋解釋解釋
+    ## [1] 120
+
+共找出120篇
 
 ``` r
-#這是R Code Chunk
+#
+table(totalpage$author)
 ```
 
-解釋解釋解釋解釋
+    ## 
+    ##   a125567365 Aretimis7345        CYPer    dragon803 ericl1234567 
+    ##            1            1            1            2            2 
+    ##       goal56        JAL96       leyi12      MrSatan    PaulDavis 
+    ##            1            2            1            1            1 
+    ##   phantomboy        Rambo     zzyyxx77    checktime       Feiwer 
+    ##            1           26            2            5            1 
+    ##  google60411 iam168888888    iammatrix       juchii   km10635237 
+    ##            1            1            1            1            1 
+    ##   LeeChi5566        lovea    rabbit529     randy225    riddickwu 
+    ##            1            1            1            1            1 
+    ##     sasolala     sean4712   SongLa5566   stocktonty    thanksyou 
+    ##            1            1            1            1            1 
+    ##    tobyhuang         Yui5     adam7148     Copycat3       djviva 
+    ##            1            1            2            1            1 
+    ##       dxc669     eric7943     gt097231      iso2288     jhemezuo 
+    ##            1            1            1            1            1 
+    ## KyrieIrving1        omare overkill0802    rrr111222  waiting0212 
+    ##            1            1            1            1            1 
+    ##       yokann     zzzz8931            -       [彩券]    cksxxb123 
+    ##            1            1            2            1            1 
+    ##      crowley     elgoogle     erikaptt  FAYeeeeeeee       hungys 
+    ##            1            1            1            1            3 
+    ##         iefw   jay0601zzz     kadasaki     kyle5241      mystage 
+    ##            1            1            1            1            1 
+    ## PegasusSeiya    rainfruit     sandiato    Turtle100       Wall62 
+    ##            1            2            1            1            1 
+    ##   a167182100    andy80419     CurryMvp   kentisking     kiske011 
+    ##            1            1            1            1            1 
+    ##    lopopo001       pneumo     Silmeria   thnlkj0665   gn00167236 
+    ##            1            1            1            1            1 
+    ## harry1234585      k960674     pipi8963      s106667     st900278 
+    ##            1            1            1            1            1 
+    ##        sthho    Vedan1213 
+    ##            1            1
 
-人工結論與解釋解釋解釋解釋解釋解釋解釋
+Rambo 發表了最多篇的文章
+
+Live的推文比其他討論多
